@@ -1,60 +1,26 @@
-// struct 可以指定資料類型
-// interface 定義多個函式的回傳值
 package main
 
-import (
-	"fmt"
-)
-
-// 指定參數類型為 uint8
-type gasEngine struct {
-	mpg    uint8
-	gallon uint8
-}
-
-type eletricEngine struct {
-	mpkwh uint8
-	kwh   uint8
-}
-
-// e 為 gasEngine 指定類型 ， miles 為uint8
-func (e gasEngine) milesLeft() uint8 {
-	return e.gallon * e.mpg
-}
-
-func (e eletricEngine) milesLeft() uint8 {
-	return e.mpkwh * e.kwh
-
-}
-
-type engine interface {
-	milesLeft() uint8
-}
-
-func canMake(e engine, miles uint8) {
-	if miles <= e.milesLeft() {
-		fmt.Println("You can make it there !!")
-		fmt.Println()
-	} else {
-		fmt.Println("Need to fuel up first")
-	}
-}
+import "fmt"
 
 func main() {
-	// 從 外呼叫gasEngine
-	var mygasEngine gasEngine = gasEngine{25, 15}
-	fmt.Println(mygasEngine.mpg, mygasEngine.gallon)
+	var p *int32 = new(int32) // 可改
+	var i int32               // 不可改
+	fmt.Printf("\nThe value p point to is: %v", *p)
+	fmt.Printf("\nThe value i is %v", i)
 
-	var mygasEngine2 = struct {
-		mpg     uint8
-		gallons uint8
-	}{25, 15}
-	fmt.Println(mygasEngine2)
-	fmt.Println(mygasEngine2.gallons)
-	fmt.Println(mygasEngine2.mpg)
+	p = &i // p 表示 i 的記憶體位置
+	*p = 1 // 定義為記憶體位置上面的值
+	// 可以發現到在相同記憶位置上 i、p 的值是一致
+	fmt.Printf("\nThe value p point to is :%v", *p)
+	fmt.Printf("\nThe value i is %v", i)
 
-	//interface 表示
-	var myEngine3 eletricEngine = eletricEngine{25, 15}
-	canMake(myEngine3, 50)
+	// 從陣列上發現如果slice跟sliceCopy相同，則位置跟值一致，
+	// 如果sliceCopy改動的話 slice 跟著改動
+
+	var slice = []int32{1, 2, 3}
+	var sliceCopy = slice
+	sliceCopy[2] = 4
+	fmt.Println(slice)
+	fmt.Println(sliceCopy)
 
 }
