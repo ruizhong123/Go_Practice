@@ -1,45 +1,60 @@
+// struct 可以指定資料類型
+// interface 定義多個函式的回傳值
 package main
 
 import (
 	"fmt"
-	"strings"
 )
 
+// 指定參數類型為 uint8
+type gasEngine struct {
+	mpg    uint8
+	gallon uint8
+}
+
+type eletricEngine struct {
+	mpkwh uint8
+	kwh   uint8
+}
+
+// e 為 gasEngine 指定類型 ， miles 為uint8
+func (e gasEngine) milesLeft() uint8 {
+	return e.gallon * e.mpg
+}
+
+func (e eletricEngine) milesLeft() uint8 {
+	return e.mpkwh * e.kwh
+
+}
+
+type engine interface {
+	milesLeft() uint8
+}
+
+func canMake(e engine, miles uint8) {
+	if miles <= e.milesLeft() {
+		fmt.Println("You can make it there !!")
+		fmt.Println()
+	} else {
+		fmt.Println("Need to fuel up first")
+	}
+}
+
 func main() {
+	// 從 外呼叫gasEngine
+	var mygasEngine gasEngine = gasEngine{25, 15}
+	fmt.Println(mygasEngine.mpg, mygasEngine.gallon)
 
-	// string 讀半字，不消耗記憶體，但index容易錯位
-	var long_version_String = "r你esum"
+	var mygasEngine2 = struct {
+		mpg     uint8
+		gallons uint8
+	}{25, 15}
+	fmt.Println(mygasEngine2)
+	fmt.Println(mygasEngine2.gallons)
+	fmt.Println(mygasEngine2.mpg)
 
-	var indexed1 = long_version_String[0]
-	fmt.Printf("%v,%T\n", indexed1, indexed1)
-
-	for i, v := range long_version_String {
-		fmt.Println(i, v)
-	}
-
-	// rune 讀全字 ，消耗記憶體，但index 不容易錯位
-	var myString = []rune("r你esume") //
-	var indexed = myString[0]
-	fmt.Printf("%v,%T\n", indexed, indexed)
-	for i, v := range myString {
-		fmt.Println(i, v)
-	}
-
-	// 最慢沒效率蒐集字串方式
-
-	var strslice = []string{"s", "u", "b", "s", "c", "r", "i", "b", "e"}
-	var catStr1 = ""
-	for i := range strslice {
-		catStr1 += strslice[i]
-	}
-	fmt.Printf("\n%v", catStr1)
-
-	// 有效率蒐集字串方式
-	var strBuilder strings.Builder
-	for i := range strslice {
-		strBuilder.WriteString(strslice[i])
-	}
-	var catStr2 = strBuilder.String()
-	fmt.Printf("\n%v", catStr2)
+	//interface 表示
+	var myEngine3 eletricEngine = eletricEngine{25, 15}
+	canMake(myEngine3, 50)
 
 }
