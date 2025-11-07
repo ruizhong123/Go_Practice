@@ -2,78 +2,59 @@ package main
 
 import (
 	"fmt"
-	"math/rand"
-	"time"
 )
 
-var MAX_CHICKEN_PRICE float32 = 5
-var MAX_TOFU_PRICE = 5
+type gasEngine struct {
+	gallons float32
+	mpg     float32
+}
+
+type elerticEngine struct {
+	kwh float32
+	mph float32
+}
+
+type car[T gasEngine | elerticEngine] struct {
+	carMake  string
+	carModel string
+	engine   T
+}
 
 func main() {
-	var chickenchannel = make(chan string)
-	var tofuchannel = make(chan string)
-	var website = []string{"walmart.com", "costco.com", "wholesfood.com"}
 
-	for i := range website {
-		go checkchickencnannel(website[i], chickenchannel)
-		go checkTofuchannel(website[i], tofuchannel)
-
+	var gascar = car[gasEngine]{
+		carMake:  "Honda",
+		carModel: "Civic",
+		engine: gasEngine{
+			gallons: 12.4,
+			mpg:     23,
+		},
 	}
 
-	sendMessage(chickenchannel, tofuchannel)
-
-}
-
-func checkTofuchannel(website string, Tofuchannel chan string) {
-	for {
-		time.Sleep(time.Second * 1)
-		var chickenPrice = rand.Float32() * 20
-		if chickenPrice <= MAX_CHICKEN_PRICE {
-			Tofuchannel <- website
-			break
-		}
-	}
-}
-
-func checkchickencnannel(website string, chickenchannel chan string) {
-	for {
-		time.Sleep(time.Second * 1)
-		var chickenPrice = rand.Float32() * 20
-		if chickenPrice <= MAX_CHICKEN_PRICE {
-			chickenchannel <- website
-			break
-		}
-	}
-}
-
-func sendMessage(chickenchannel chan string, Tofuchannel chan string) {
-	select {
-	case website := <-chickenchannel:
-		fmt.Printf("Found deal on chicken at %v", website)
-	case website := <-Tofuchannel:
-		fmt.Printf("Found deal on chicken at %v", website)
-
+	var Eletriccar = car[elerticEngine]{
+		carMake:  "Tesla",
+		carModel: "Model 3",
+		engine: elerticEngine{
+			kwh: 12.3,
+			mph: 22,
+		},
 	}
 
+	fmt.Println(gascar)
+	fmt.Println(Eletriccar)
 }
+
+// generic 是指函式允許不同類型的資料被單一個函式計算
 
 // func main() {
 
-// 	var c = make(chan int)
-// 	go process(c)
-
-// 	// 從主線道發送資料
-// 	for i := range c {
-// 		fmt.Printf("\nthe value have been exited: %v", i)
-// 	}
+// 	// 任何類型都能跑
+// 	Print(42)      // T = int
+// 	Print("hello") // T = string
+// 	Print(3.14)    // T = float64
 
 // }
 
-// // 使用 process 讓channel 接收資料
-// func process(c chan int) {
-// 	// 當管道執行完接收資料資料時就立即關閉
-// 	defer close(c)
-// 	for i := 0; i < 5; i++ {
-// 		c <- i
-// 	}
+// func Print[T any](value T) {
+// 	fmt.Println(value)
 // }
