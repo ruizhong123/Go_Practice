@@ -3,55 +3,77 @@ package main
 import (
 	"fmt"
 	"math/rand"
-	"sync"
 	"time"
 )
 
-// concurrency 兩個任務同一個cpu  parrellel executaion 處理核心分開
-var m = sync.Mutex{}
-var wg = sync.WaitGroup{}
-var dbData = []string{"1d1", "1d2", "1d3", "id4", "id5"}
-var results = []string{}
+var MAX_CHICKEN_PRICE float32 = 5
+var MAX_TOFU_PRICE = 5
 
-// 使用迴圈呼叫五個函式進行完成
 func main() {
-	t0 := time.Now()
-	for i := 0; i < len(dbData); i++ {
-		// 啟動執行序
-		wg.Add(1)
-		// 呼叫dbcail函式執行
-		go dbCail(i)
+	var chickenchannel = make(chan string)
+	var tofuchannel = make(chan string)
+	var website = []string{"walmart.com", "costco.com", "wholesfood.com"}
+
+	for i := range website {
+		go checkchickencnannel(website[i], chickenchannel)
+		go checkTofuchannel(website[i], tofuchannel)
+
 	}
-	// 等待所有執行任務完成以後，輸出完成時間
-	wg.Wait()
-	fmt.Printf("\nTotal executation time:%v", time.Since(t0))
+
+	sendMessage(chickenchannel, tofuchannel)
 
 }
 
-// 呼叫資料庫 ID
-func dbCail(i int) {
-	var delay float32 = rand.Float32() * 5000
-	time.Sleep(time.Duration(delay) * time.Millisecond)
-	fmt.Println("the result from the database:", dbData[i])
-
-	// 使用資料上鎖避免資料再回傳的時候避免被其他已完成函式干擾結果
-	save()
-
-	// 完成任務
-	wg.Done()
+func checkTofuchannel(website string, Tofuchannel chan string) {
+	for {
+		time.Sleep(time.Second * 1)
+		var chickenPrice = rand.Float32() * 20
+		if chickenPrice <= MAX_CHICKEN_PRICE {
+			Tofuchannel <- website
+			break
+		}
+	}
 }
 
-// 儲存資料
-func save(i int) {
-	m.Lock()
-	// 完成資料連接才能留給下一個使用著
-	results = append(results, dbData[i])
-	m.Unlock()
+func checkchickencnannel(website string, chickenchannel chan string) {
+	for {
+		time.Sleep(time.Second * 1)
+		var chickenPrice = rand.Float32() * 20
+		if chickenPrice <= MAX_CHICKEN_PRICE {
+			chickenchannel <- website
+			break
+		}
+	}
+}
+
+func sendMessage(chickenchannel chan string, Tofuchannel chan string) {
+	select {
+	case website := <-chickenchannel:
+		fmt.Printf("Found deal on chicken at %v", website)
+	case website := <-Tofuchannel:
+		fmt.Printf("Found deal on chicken at %v", website)
+
+	}
 
 }
 
-// 列印出儲存結果
-func log() {
-	fmt.Printf("\nThe result are %v", results)
+// func main() {
 
-}
+// 	var c = make(chan int)
+// 	go process(c)
+
+// 	// 從主線道發送資料
+// 	for i := range c {
+// 		fmt.Printf("\nthe value have been exited: %v", i)
+// 	}
+
+// }
+
+// // 使用 process 讓channel 接收資料
+// func process(c chan int) {
+// 	// 當管道執行完接收資料資料時就立即關閉
+// 	defer close(c)
+// 	for i := 0; i < 5; i++ {
+// 		c <- i
+// 	}
+// }
