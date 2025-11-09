@@ -1,16 +1,15 @@
 package middleware
 
 import (
-	"error"
+	"errors"
 	"net/http"
 
-	"github.com/avukadin/goapi.git/api"
 	"github.com/avukadin/goapi/api"
 	"github.com/avukadin/goapi/internal/tools"
 	log "github.com/sirupsen/logrus"
 )
 
-var UnAuthorizedError = error.New("unauthorized access")
+var UnAuthorizedError = errors.New("unauthorized access")
 
 // 使用 Authorization 處理使用著 授權
 func Authorization(next http.Handler) http.Handler {
@@ -18,25 +17,26 @@ func Authorization(next http.Handler) http.Handler {
 
 		var username string = r.URL.Query().Get("username")
 		token := r.Header.Get("Authorization")
-
 		var err error
 
-		// 如果相位
+		// 如果驗證失敗
 		if username == "" || token == "" {
 			log.Error("unauthorizedError")
 			api.RequestErrorHandler(w, UnAuthorizedError)
 			return
 		}
 
-		var database *tools.LoginDetails
+		var database *tools.DatabaseInterface
+
 		database, err = tools.NewDatabase()
+
 		if err != nil {
 			api.InternalErrorHandler(w)
 			return
 		}
 
 		var loginDetails *tools.LoginDetails
-		loginDetails := (*database).GetLoginDetails(username)
+		loginDetails = (*database).GetUserLoginDetails(username)
 
 		if (loginDetails == nil) || (token != (*loginDetails).AuthToken) {
 			log.Error("unauthorizedError")

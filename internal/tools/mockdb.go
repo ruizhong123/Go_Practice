@@ -6,44 +6,52 @@ import (
 
 type mockDB struct{}
 
+var mockLoginDetails = map[string]LoginDetails{
+	"alex": {
+		AuthToken: "123abc",
+		Username:  "alex",
+	},
+	"bob": {
+		AuthToken: "456def",
+		Username:  "bob",
+	},
+	"marie": {
+		AuthToken: "789ghi",
+		Username:  "marie",
+	},
+}
 
-var mockloginDetails = map[string]*LoginDetails{
-	"alex":	{
-		Authorization: "123abc",
-		Username:      "alex",
-	},
-	"bob":	{
-		Authorization: "456def",
-		Username:      "bob",
-	},
-	"marie":	{
-		Authorization: "789ghi",
-		Username:      "marie",
-	},
-}	
-
-vart mockCoinDetails = map[string]CoinDetails{
-	"alex":	{
-		Coin:     1000,
+var mockCoinDetails = map[string]CoinDetails{
+	"alex": {
+		Coins:    1000,
 		Username: "alex",
 	},
-	"bob":	{
-		Coin:     500,
+	"bob": {
+		Coins:    500,
 		Username: "bob",
 	},
-	"marie":	{
-		Coin:     750,
+	"marie": {
+		Coins:    750,
 		Username: "marie",
 	},
 }
 
-
-
-func (db *mockDB) GetLoginDetails(username string) *LoginDetails {
+func (db *mockDB) GetUserLoginDetails(username string) *LoginDetails {
 	time.Sleep(1 * time.Second) // 模擬資料庫延遲
 	var clientData = LoginDetails{}
-	
-	clientData,ok := mockCoinDetails[username]
+
+	clientData, ok := mockLoginDetails[username]
+	if !ok {
+		return nil
+	}
+	return &clientData
+}
+
+func (db *mockDB) GetUserCoinDetails(username string) *CoinDetails {
+	time.Sleep(1 * time.Second) // 模擬資料庫延遲
+	var clientData = CoinDetails{}
+
+	clientData, ok := mockCoinDetails[username]
 	if !ok {
 		return nil
 	}

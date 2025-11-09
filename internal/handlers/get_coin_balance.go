@@ -1,8 +1,7 @@
-package handler
+package handlers
 
 import (
 	"encoding/json"
-	"go/token"
 	"net/http"
 
 	"github.com/avukadin/goapi/api"
@@ -12,33 +11,35 @@ import (
 )
 
 func GetCoinBalance(w http.ResponseWriter, r *http.Request) {
-	var params api.CoinBalanceParam
-	decoder := schema.NewDecoder()
+	var params = api.CoinBalanceParam{}
+	var decoder *schema.Decoder = schema.NewDecoder()
 	var err error
+
 	err = decoder.Decode(&params, r.URL.Query())
 
 	if err != nil {
 		log.Error("request parameter error:", err)
-		api.RequestErrorHandler(w)
+		api.InternalErrorHandler(w)
 		return
 	}
 
 	var database *tools.DatabaseInterface
 	database, err = tools.NewDatabase()
 	if err != nil {
+
 		api.InternalErrorHandler(w)
 		return
 	}
 
-	var tokenDetails *tools.CoinDetail
-	tokenDetails = (*database).GetCoinDetails(params.Username)
+	var tokenDetails *tools.CoinDetails
+	tokenDetails = (*database).GetUserCoinDetails(params.Username)
 	if tokenDetails == nil {
-		log.Error(err)
 		api.InternalErrorHandler(w)
 		return
 	}
+
 	var response = api.CoinBalanceResponse{
-		Balance: (*tokenDetails).Coin,
+		Balance: (*tokenDetails).Coins,
 		Code:    http.StatusOK,
 	}
 	w.Header().Set("Content-Type", "application/json")
