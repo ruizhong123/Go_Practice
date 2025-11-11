@@ -24,6 +24,7 @@ func GetCoinBalance(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var database *tools.DatabaseInterface
+
 	database, err = tools.NewDatabase()
 	if err != nil {
 
@@ -33,6 +34,7 @@ func GetCoinBalance(w http.ResponseWriter, r *http.Request) {
 
 	var tokenDetails *tools.CoinDetails
 	tokenDetails = (*database).GetUserCoinDetails(params.Username)
+
 	if tokenDetails == nil {
 		api.InternalErrorHandler(w)
 		return
@@ -42,8 +44,12 @@ func GetCoinBalance(w http.ResponseWriter, r *http.Request) {
 		Balance: (*tokenDetails).Coins,
 		Code:    http.StatusOK,
 	}
+
+	// 回傳 json 格式回應，如果出現錯誤會回應給 GO API 的 InternalErrorHandler
+
 	w.Header().Set("Content-Type", "application/json")
 	err = json.NewEncoder(w).Encode(response)
+
 	if err != nil {
 		log.Error("response encode error:", err)
 		api.InternalErrorHandler(w)

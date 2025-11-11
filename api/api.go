@@ -25,10 +25,10 @@ type Error struct {
 	Message string
 }
 
+// 撰寫 錯誤格式的函式
 func writerError(w http.ResponseWriter, message string, code int) {
 
 	// response 回傳錯誤訊息 : 錯誤代碼與錯誤訊息
-
 	resp := Error{
 		Code:    code,
 		Message: message,
